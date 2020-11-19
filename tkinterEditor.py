@@ -5,6 +5,7 @@ import os
 import uuid
 import time
 import shutil
+from copy import deepcopy
 
 from functools import partial
 
@@ -44,6 +45,7 @@ class tkinterEditor(componentMgr):
         self.created_pos_x = 0                                                  # 创建控件时的坐标x
         self.created_pos_y = 0                                                  # 创建控件时的坐标y
         self.is_new_project_show = True                                         # 创建新project界面是否显示
+        self.copied_component = None                                            # 复制的控件信息
         self.init_frame()
 
     @property
@@ -440,7 +442,7 @@ class tkinterEditor(componentMgr):
         """
         self.create_control(quick_name, gui_name)
 
-    def create_control(self, quick_name, gui_name):
+    def create_control(self, quick_name, gui_name, property_dict=None):
         """
         创建控件
         :param quick_name: 快捷按钮名字
@@ -471,7 +473,15 @@ class tkinterEditor(componentMgr):
         frame, info = create_default_component(child_master, "Frame", "None", frame_prop, False)
 
         # 创建控件
-        component, property_dict = create_default_component(frame, gui_name, control_name, prop)
+        if property_dict is not None:
+            property_dict["component_name"] = control_name
+            property_dict["is_main"] = 0
+            property_dict["x"] = prop["x"]
+            property_dict["y"] = prop["y"]
+            component = create_component_from_dict(frame, property_dict)
+        else:
+            component, property_dict = create_default_component(frame, gui_name, control_name, prop)
+
         frame.configure(width=component.winfo_reqwidth() + 4, height=component.winfo_reqheight() + 4)
 
         # 以下控件需要重新修改宽和高
@@ -825,6 +835,28 @@ class tkinterEditor(componentMgr):
         """
         self.move_control("Right", None)
 
+    def copy(self):
+        """
+        复制控件
+        :return: None
+        """
+        edit_component = self.get_selected_component()
+        if edit_component is None:
+            return
+
+        self.copied_component = deepcopy(edit_component.get_component_info())
+
+    def paste(self):
+        """
+        粘贴控件
+        :return: None
+        """
+        if self.copied_component is None:
+            return
+
+        gui_type = self.copied_component["gui_type"]
+        self.create_control(gui_type, gui_type, self.copied_component)
+
     ################################################ view menu ################################################
 
     def change_theme(self):
@@ -846,6 +878,8 @@ class tkinterEditor(componentMgr):
         self.master.bind("<Control-n>", lambda event: self.new_gui())
         self.master.bind("<Control-p>", lambda event: self.new_project())
         self.master.bind("<Control-Delete>", lambda event: self.delete_control())
+        self.master.bind("<Control-c>", lambda event: self.copy())
+        self.master.bind("<Control-v>", lambda event: self.paste())
         for k in ("Up", "Down", "Left", "Right"):
             self.master.bind("<Control-{0}>".format(k), partial(self.move_control, k))
 
