@@ -431,7 +431,7 @@ class tkinterEditor(componentMgr):
             gui_name = self.config_parser.get("quick_btn", quick_name)
             prop.update({"text": quick_name})
             btn = self.quick_list.add_col(prop, False)
-            btn.bind("<Button-1>", partial(self.on_quick_btn_click, quick_name, gui_name))
+            btn.bind("<ButtonRelease-1>", partial(self.on_quick_btn_click, quick_name, gui_name))
         self.quick_list.do_layout_col()
 
     def on_quick_btn_click(self, quick_name, gui_name, event):
@@ -440,7 +440,34 @@ class tkinterEditor(componentMgr):
         :param gui_name:模块名
         :return:None
         """
+        if quick_name == "LoadXml":
+            self.load_xml_to_edit_component()
+            return
+
         self.create_control(quick_name, gui_name)
+
+    def load_xml_to_edit_component(self):
+        """
+        读取xml后创建到当前编辑的component中
+        :return: None
+        """
+        edit_component = self.get_selected_component()
+        if edit_component is None:
+            return
+
+        file_path = askopenfilename(title=u"选择文件", filetypes=[("xml files", "xml"), ("all files", "*")])
+        if not file_path:
+            return
+
+        cur_tab = self.file_tab_window.get_cur_tab()
+        components = self.load_from_xml(edit_component.component.get_child_master(), file_path, False, partial(self.on_component_create, cur_tab, False))
+        for parent_name, component_info in components.items():
+            if component_info.get("is_main", "0") == "1":
+                component_info["is_main"] = 0
+            edit_component.component_info.setdefault("children", []).append(component_info)
+
+        self.refresh_tree()
+        self.treeview.tree.selection_set(edit_component.name)
 
     def create_control(self, quick_name, gui_name, property_dict=None):
         """
@@ -855,7 +882,7 @@ class tkinterEditor(componentMgr):
             return
 
         gui_type = self.copied_component["gui_type"]
-        self.create_control(gui_type, gui_type, self.copied_component)
+        self.create_control(gui_type, gui_type, deepcopy(self.copied_component))
 
     ################################################ view menu ################################################
 
