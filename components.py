@@ -11,6 +11,7 @@ from EditorTree import EditorTree
 from EditorTabControl import EditorTabControl
 from ScrollCols import ScrollButtonCols
 from ScrollCanvas import ScrollCanvas
+from ScrollRows import ScrollRows
 from EditorPropertyList import EditorPropertyList
 
 
