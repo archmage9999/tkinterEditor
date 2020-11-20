@@ -905,8 +905,8 @@ class tkinterEditor(componentMgr):
         self.master.bind("<Control-n>", lambda event: self.new_gui())
         self.master.bind("<Control-p>", lambda event: self.new_project())
         self.master.bind("<Control-Delete>", lambda event: self.delete_control())
-        self.master.bind("<Control-c>", lambda event: self.copy())
-        self.master.bind("<Control-v>", lambda event: self.paste())
+        self.master.bind("<Control-comma>", lambda event: self.copy())
+        self.master.bind("<Control-period>", lambda event: self.paste())
         for k in ("Up", "Down", "Left", "Right"):
             self.master.bind("<Control-{0}>".format(k), partial(self.move_control, k))
 
