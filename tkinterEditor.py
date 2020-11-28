@@ -382,6 +382,7 @@ class tkinterEditor(componentMgr):
         self.treeview.tree.column("#0", width=int(self.treeview["width"]) - 20)
 
         self.treeview.set_on_select_tree(self.on_select_tree)
+        self.treeview.set_on_select_tree_3(self.on_select_tree_3)
         self.treeview.set_editor(self)
 
     def refresh_tree(self):
@@ -417,7 +418,32 @@ class tkinterEditor(componentMgr):
         if not component:
             return
 
+        if index == "root":
+            return
+
         self.on_edit_component_selected(component, True, None)
+
+    def on_select_tree_3(self, event):
+        """
+        右键树
+        :param event: event
+        :return: None
+        """
+        row = event.widget.identify_row(event.y)
+        if not row:
+            return
+
+        if row == "root":
+            return
+
+        event.widget.selection_set(row)
+
+        component = self.treeview.get_data_by_index(row)
+        if not component:
+            return
+
+        self.on_edit_component_selected(component, True, None)
+        self.right_edit_menu.post(event.x_root, event.y_root)
 
     ############################################## quick button ###############################################
 

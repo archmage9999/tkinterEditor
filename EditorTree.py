@@ -38,6 +38,7 @@ class EditorTree(ScrollCanvas):
         self.data = {}                                      # 额外存储的数据
         self.editor = None                                  # 编辑器
         self.on_select_tree = None                          # 选中树的回调
+        self.on_select_tree_3 = None                        # 右键树
 
     def set_editor(self, editor):
         self.editor = editor
@@ -53,6 +54,9 @@ class EditorTree(ScrollCanvas):
 
     def set_on_select_tree(self, on_select_tree):
         self.on_select_tree = on_select_tree
+
+    def set_on_select_tree_3(self, on_select_tree_3):
+        self.on_select_tree_3 = on_select_tree_3
 
     def on_update(self):
         ScrollCanvas.on_update(self)
@@ -73,6 +77,7 @@ class EditorTree(ScrollCanvas):
         tree_view, info = create_default_component(self.slide_window, "Treeview", "tree", property_dict)
 
         tree_view.bind('<ButtonRelease-1>', self.select_tree)
+        tree_view.bind('<ButtonRelease-3>', self.select_tree_3)
         tree_view.bind('<Key>', self.key_press)
 
     def key_press(self, event):
@@ -82,6 +87,10 @@ class EditorTree(ScrollCanvas):
     def select_tree(self, event):
         if self.on_select_tree != None:
             self.on_select_tree(event)
+
+    def select_tree_3(self, event):
+        if self.on_select_tree_3 != None:
+            self.on_select_tree_3(event)
 
     def add_root_node(self, text, values=(), root_name=""):
         """
