@@ -299,6 +299,27 @@
 				<width>450</width>
 				<gui_type>Toplevel</gui_type>
 			</top_level>
+			<debug_window>
+				<anchor>nw</anchor>
+				<alpha>0.8</alpha>
+				<background>black</background>
+				<component_name>debug_window</component_name>
+				<height>990</height>
+				<input_height>5</input_height>
+				<input_width>274</input_width>
+				<input_pos_y>977</input_pos_y>
+				<output_height>72</output_height>
+				<output_width>274</output_width>
+				<x>735</x>
+				<y>450</y>
+				<positionfrom>program</positionfrom>
+				<title>debug</title>
+				<topmost>1</topmost>
+				<toolwindow>1</toolwindow>
+				<takefocus>0</takefocus>
+				<width>1920</width>
+				<gui_type>DebugInterpreterFrame</gui_type>
+			</debug_window>
 		</children>
 		<component_name>editor_window</component_name>
 		<height>990</height>
