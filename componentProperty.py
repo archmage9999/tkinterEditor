@@ -51,6 +51,7 @@ PROP_CONFIGURE = {
         "Spinbox": ("white", "string",),
         "Text": ("white", "string",),
         "Toplevel": ("white", "string",),
+        "DebugInterpreterFrame": ("white", "string",),
         "EditorProperty": ("white", "string",),
         "EditorPropertyList": ("white", "string",),
         "EditorTabControl": ("white", "string",),
@@ -82,6 +83,7 @@ PROP_CONFIGURE = {
         "Spinbox": (1, "int",),
         "Text": (0, "int",),
         "Toplevel": (0, "int",),
+        "DebugInterpreterFrame": (0, "int",),
         "EditorProperty": (0, "int",),
         "EditorPropertyList": (0, "int",),
         "EditorTabControl": (0, "int",),
@@ -124,6 +126,7 @@ PROP_CONFIGURE = {
         "Spinbox": ("arrow", "string",),
         "Text": ("xterm", "string",),
         "Toplevel": ("arrow", "string",),
+        "DebugInterpreterFrame": ("arrow", "string",),
         "Treeview": ("arrow", "string",),
         "EditorProperty": ("arrow", "string",),
         "EditorPropertyList": ("arrow", "string",),
@@ -264,6 +267,7 @@ PROP_CONFIGURE = {
         "Spinbox": ("red", "string",),
         "Text": ("red", "string",),
         "Toplevel": ("red", "string",),
+        "DebugInterpreterFrame": ("red", "string",),
         "EditorProperty": ("red", "string",),
         "EditorPropertyList": ("red", "string",),
         "EditorTabControl": ("red", "string",),
@@ -291,6 +295,7 @@ PROP_CONFIGURE = {
         "Spinbox": ("None", "string",),
         "Text": ("None", "string",),
         "Toplevel": ("None", "string",),
+        "DebugInterpreterFrame": ("None", "string",),
         "EditorProperty": ("None", "string",),
         "EditorPropertyList": ("None", "string",),
         "EditorTabControl": ("None", "string",),
@@ -318,6 +323,7 @@ PROP_CONFIGURE = {
         "Spinbox": (0, "int",),
         "Text": (0, "int",),
         "Toplevel": (0, "int",),
+        "DebugInterpreterFrame": (0, "int",),
         "EditorProperty": (0, "int",),
         "EditorPropertyList": (0, "int",),
         "EditorTabControl": (0, "int",),
@@ -469,6 +475,7 @@ PROP_CONFIGURE = {
         "Spinbox": ("sunken", "string",),
         "Text": ("sunken", "string",),
         "Toplevel": ("flat", "string",),
+        "DebugInterpreterFrame": ("flat", "string",),
         "EditorProperty": ("flat", "string",),
         "EditorPropertyList": ("flat", "string",),
         "EditorTabControl": ("flat", "string",),
@@ -607,6 +614,7 @@ PROP_CONFIGURE = {
         "Text": (0, "int",),
         "Toplevel": (0, "int",),
         "Treeview": (0, "int",),
+        "DebugInterpreterFrame": (0, "int",),
         "EditorProperty": (0, "int",),
         "EditorPropertyList": (0, "int",),
         "EditorTabControl": (0, "int",),
@@ -831,6 +839,21 @@ PROP_EXT = {
         "ScrollCanvas": (1, "int",),
         "ScrollRows": (1, "int",),
     },
+    "input_width": {
+        "DebugInterpreterFrame": (1, "int")
+    },
+    "input_height": {
+        "DebugInterpreterFrame": (1, "int")
+    },
+    "input_pos_y": {
+        "DebugInterpreterFrame": (1, "int")
+    },
+    "output_width": {
+        "DebugInterpreterFrame": (1, "int")
+    },
+    "output_height": {
+        "DebugInterpreterFrame": (1, "int")
+    },
     "label_text": {
         "EditorTabControlBtn": ("default", "string",),
     },
@@ -849,22 +872,36 @@ PROP_EXT = {
 PROP_LIKE_TOP_LEVEL = {
     "x": {
         "Toplevel": (0, "int",),
+        "DebugInterpreterFrame": (0, "int",),
     },
     "y": {
         "Toplevel": (0, "int",),
+        "DebugInterpreterFrame": (0, "int",),
     },
     "width": {
         "Toplevel": (400, "int",),
+        "DebugInterpreterFrame": (400, "int",),
     },
     "height": {
         "Toplevel": (400, "int",),
+        "DebugInterpreterFrame": (400, "int",),
     },
     "title": {
         "Toplevel": ("toplevel", "string",),
+        "DebugInterpreterFrame": ("debugWindow", "string",),
     },
     "topmost": {
         "Toplevel": (1, "int",),
+        "DebugInterpreterFrame": (1, "int",),
     },
+    "alpha": {
+        "Toplevel": (1.0, "float"),
+        "DebugInterpreterFrame": (1.0, "float"),
+    },
+    "toolwindow": {
+        "Toplevel": (True, "bool"),
+        "DebugInterpreterFrame": (True, "bool"),
+    }
 }
 
 
@@ -1000,7 +1037,7 @@ def update_like_toplevel_property(component, component_info, gui_type):
         if prop_name == "title":
             component.title(prop)
             continue
-        if prop_name in ("topmost"):
+        if prop_name in ("topmost", "alpha", "toolwindow"):
             component.wm_attributes('-{0}'.format(prop_name), prop)
 
 
@@ -1121,6 +1158,6 @@ def update_single_prop(component, prop_name, prop_value, gui_type):
                 component.geometry("%sx%d+%s+%s" % (matched.groups()[0], prop, matched.groups()[2], matched.groups()[3],))
             elif prop_name == "title":
                 component.title(prop)
-            elif prop_name in ("topmost"):
+            elif prop_name in ("topmost", "alpha", "toolwindow"):
                 component.wm_attributes('-{0}'.format(prop_name), prop)
         return

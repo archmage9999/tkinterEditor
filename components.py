@@ -13,6 +13,7 @@ from ScrollCols import ScrollButtonCols
 from ScrollCanvas import ScrollCanvas
 from ScrollRows import ScrollRows
 from EditorPropertyList import EditorPropertyList
+from debugInterpreter import DebugInterpreterFrame
 
 
 def create_component_from_dict(master, component_info):

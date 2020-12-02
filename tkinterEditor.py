@@ -6,7 +6,6 @@ import uuid
 import time
 import shutil
 from copy import deepcopy
-
 from functools import partial
 
 from tkinter import Tk, Menu, messagebox
@@ -30,6 +29,9 @@ EDITOR_THEME = {
 }
 
 
+Editor = None
+
+
 class tkinterEditor(componentMgr):
 
     def __init__(self, master, gui_path):
@@ -45,6 +47,7 @@ class tkinterEditor(componentMgr):
         self.created_pos_x = 0                                                  # 创建控件时的坐标x
         self.created_pos_y = 0                                                  # 创建控件时的坐标y
         self.is_new_project_show = True                                         # 创建新project界面是否显示
+        self.is_debug_window_show = True                                        # 调试窗口界面是否显示
         self.copied_component = None                                            # 复制的控件信息
         self.init_frame()
 
@@ -80,6 +83,10 @@ class tkinterEditor(componentMgr):
     def entry_name(self):
         return self.top_level.children.get("entry_name", None)
 
+    @property
+    def debug_window(self):
+        return self.editor_window.children.get("debug_window", None)
+
     def set_selected_component(self, selected_component):
         if self.selected_component is selected_component:
             return
@@ -101,6 +108,7 @@ class tkinterEditor(componentMgr):
         self.init_quick_btn()
         self.init_top_level()
         self.init_hot_key()
+        self.init_debug_window()
 
     ################################################ menu ################################################
 
@@ -919,6 +927,15 @@ class tkinterEditor(componentMgr):
         """
         self.set_theme((self.get_theme() + 1) % len(EDITOR_THEME))
 
+    ############################################## debug menu #################################################
+
+    def open_debug_window(self):
+        """
+        打开调试窗口
+        :return: None
+        """
+        self.change_debug_window_ui()
+
     ############################################### hot key ###################################################
 
     def init_hot_key(self):
@@ -935,13 +952,43 @@ class tkinterEditor(componentMgr):
         self.master.bind("<Control-period>", lambda event: self.paste())
         for k in ("Up", "Down", "Left", "Right"):
             self.master.bind("<Control-{0}>".format(k), partial(self.move_control, k))
+        self.master.bind("<Alt-p>", lambda event: self.change_debug_window_ui())
+
+    ########################################### debug window ##################################################
+
+    def change_debug_window_ui(self):
+        """
+        打开关闭new_project界面
+        :return: None
+        """
+        if self.is_debug_window_show:
+            self.is_debug_window_show = False
+            self.debug_window.withdraw()
+            self.debug_window.master.master.wm_attributes('-disabled', False)
+            self.debug_window.overrideredirect(False)
+            return
+        self.is_debug_window_show = True
+        self.debug_window.deiconify()
+        self.debug_window.master.master.wm_attributes('-disabled', True)
+        self.debug_window.overrideredirect(True)
+        self.debug_window.geometry("{}x{}+{}+{}".format(self.master.winfo_width(), self.master.winfo_height() + 52, self.master.winfo_x() + 7, self.master.winfo_y()))
+        self.debug_window.do_layout()
+
+    def init_debug_window(self):
+        """
+        初始化调试窗口
+        :return: None
+        """
+        self.change_debug_window_ui()
+        self.debug_window.bind("<KeyRelease-Escape>", lambda event: self.change_debug_window_ui())
 
 
 def main():
     root = Tk()
     #root.resizable(0, 0)
     path = os.path.join(os.getcwd(), "tkinterEditor.xml")
-    tkinterEditor(root, path)
+    global Editor
+    Editor = tkinterEditor(root, path)
     root.mainloop()
 
 
