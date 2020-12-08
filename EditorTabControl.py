@@ -6,6 +6,7 @@ from tkinter import Frame, Label
 from ScrollCanvas import ScrollCanvas
 from SimpleTabControl import SimpleTabControl
 from componentProperty import update_all_property, get_default_component_info
+from componentProperty import get_pixel_height, get_pixel_width
 
 
 def create_default_component(master, component_type, component_name, prop=None, use_name=True):
@@ -60,8 +61,10 @@ class EditorTabControlBtn(Frame):
         if self.label_text == label_text:
             return
         self.label_text = label_text
+        self.tab_label.place_configure(width='')
         self.tab_label.configure(text=self.label_text, width=len(self.label_text))
-        self.tab_under_line.configure(width=self.tab_label.winfo_reqwidth() + self.tab_close.winfo_reqwidth())
+        self.tab_label.place_configure(width=self.tab_label.winfo_reqwidth())
+        self.tab_under_line.place_configure(width=get_pixel_width(self.tab_label) + get_pixel_width(self.tab_close))
         self.do_layout()
 
     def get_label_text(self):
@@ -137,7 +140,7 @@ class EditorTabControlBtn(Frame):
         :return:None
         """
         prop = {
-            "width": self.tab_label.winfo_reqwidth() + self.tab_close.winfo_reqwidth(),
+            "width": get_pixel_width(self.tab_label) + get_pixel_width(self.tab_close),
             "background": self.under_line_bg, "height": 2,
         }
         create_default_component(self, "Frame", "under_line", prop)
@@ -148,10 +151,10 @@ class EditorTabControlBtn(Frame):
         :return:None
         """
         self.tab_label.place(x=0, y=3)
-        self.tab_close.place(x=self.tab_label.winfo_reqwidth(), y=-5)
-        self.tab_under_line.place(x=0, y=self.tab_label.winfo_reqheight() + 5)
-        self.configure(width=self.tab_label.winfo_reqwidth() + self.tab_close.winfo_reqwidth())
-        self.configure(height=int(self.tab_under_line.place_info()["y"]) + self.tab_under_line.winfo_reqheight())
+        self.tab_close.place(x=get_pixel_width(self.tab_label), y=-5)
+        self.tab_under_line.place(x=0, y=get_pixel_height(self.tab_label) + 5)
+        self.place_configure(width=get_pixel_width(self.tab_label) + get_pixel_width(self.tab_close))
+        self.place_configure(height=int(self.tab_under_line.place_info()["y"]) + get_pixel_height(self.tab_under_line))
 
     def on_tab_selected(self):
         """
@@ -176,7 +179,11 @@ class EditorTabControlBtn(Frame):
         if not visible:
             self.tab_under_line.place_forget()
             return
-        self.tab_under_line.place(x=0, y=self.tab_label.winfo_reqheight() + 5, anchor="nw")
+
+        self.tab_under_line.place_configure(
+            x=0, y=get_pixel_height(self.tab_label) + 5, anchor="nw",
+            width=get_pixel_width(self.tab_label) + get_pixel_width(self.tab_close)
+        )
 
     @staticmethod
     def create_default(master, prop=None):

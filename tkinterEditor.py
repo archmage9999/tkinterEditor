@@ -214,19 +214,13 @@ class tkinterEditor(componentMgr):
 
         # 创建一个frame套在真正的控件外面
         frame_prop = {
-            "background": master["background"], "highlightcolor": "red",
+            "background": master["background"],
         }
-        frame, info = create_default_component(master, "Frame", "None", frame_prop, False)
+        frame, info = create_default_component(master, "SelectedCanvas", "None", frame_prop, False)
 
         # 创建控件
         component = create_component_from_dict(frame, component_info)
-        frame.configure(width=component.winfo_reqwidth() + 4, height=component.winfo_reqheight() + 4)
-
-        # 以下控件需要重新修改宽和高
-        if gui_type in ("Progressbar", "Scrollbar", "Separator"):
-            frame.configure(width=int(component_info["width"]) + 4, height=int(component_info["height"]) + 4)
-
-        frame.place_configure(x=component_info["x"], y=component_info["y"], anchor=component_info["anchor"])
+        frame.place_configure(x=int(component_info["x"]), y=int(component_info["y"]), anchor=component_info["anchor"])
         component.place_configure(x=0, y=0, anchor="nw")
 
         if on_create_success:
@@ -270,6 +264,9 @@ class tkinterEditor(componentMgr):
         child_master.bind("<Button-3>", partial(self.on_edit_component_button_3_click, edit_component))
         child_master.bind("<B1-Motion>", partial(self.on_edit_component_motion, edit_component))
         child_master.bind("<ButtonRelease-1>", partial(self.on_edit_component_btn_release, edit_component))
+        child_master.bind("<Configure>", partial(self.on_edit_component_configure, edit_component))
+
+        component.master.set_on_resize_complete(partial(self.on_edit_component_master_resize_complete, edit_component))
 
     def find_edit_component_by_component(self, component, path):
         """
@@ -298,6 +295,9 @@ class tkinterEditor(componentMgr):
         self.cancel_select_component()
         self.property_list.hide_rows()
         data = self.file_tab_window.get_data(tab_num)
+        tab_frame = self.file_tab_window.get_tab_frame(tab_num)
+        tab_frame.do_layout_slide_window()
+        tab_frame.update_scroll()
         self.refresh_tree()
         self.edit_components[data["path"]].select_first_child()
 
@@ -357,6 +357,23 @@ class tkinterEditor(componentMgr):
         :return: None
         """
         edit_component.handle_mouse_release(event, edit_component.component)
+
+    def on_edit_component_configure(self, edit_component, event):
+        """
+        当控件尺寸变化时
+        :param edit_component: 编辑控件
+        :param event: event
+        :return: None
+        """
+        edit_component.on_edit_component_configure(edit_component is self.selected_component)
+
+    def on_edit_component_master_resize_complete(self, edit_component):
+        """
+        编辑控件master尺寸变化后调用
+        :param edit_component: 编辑控件
+        :return: None
+        """
+        edit_component.on_edit_component_master_resize_complete()
 
     def on_gui_close(self, tab_num):
         """
@@ -525,13 +542,13 @@ class tkinterEditor(componentMgr):
         }
 
         if child_master["background"]== "white":
-            prop["background"] = "grey"
+            prop["background"] = "SystemScrollbar"
 
         # 创建一个frame套在真正的控件外面
         frame_prop = {
-            "background": child_master["background"], "highlightcolor": "red",
+            "background": child_master["background"],
         }
-        frame, info = create_default_component(child_master, "Frame", "None", frame_prop, False)
+        frame, info = create_default_component(child_master, "SelectedCanvas", "None", frame_prop, False)
 
         # 创建控件
         if property_dict is not None:
@@ -543,13 +560,7 @@ class tkinterEditor(componentMgr):
         else:
             component, property_dict = create_default_component(frame, gui_name, control_name, prop)
 
-        frame.configure(width=component.winfo_reqwidth() + 4, height=component.winfo_reqheight() + 4)
-
-        # 以下控件需要重新修改宽和高
-        if gui_name in ("Progressbar", "Scrollbar", "Separator"):
-            frame.configure(width=int(property_dict["width"]) + 4, height=int(property_dict["height"]) + 4)
-
-        frame.place_configure(x=property_dict["x"], y=property_dict["y"], anchor=property_dict["anchor"])
+        frame.place_configure(x=int(property_dict["x"]), y=int(property_dict["y"]), anchor=property_dict["anchor"])
         component.place_configure(x=0, y=0, anchor="nw")
 
         self.on_component_create(self.file_tab_window.get_cur_tab(), True, component, property_dict, child_master)
@@ -580,7 +591,7 @@ class tkinterEditor(componentMgr):
         if component_name is None:
             component_name = self.create_random_name("frame")
 
-        bg = "grey" if self.get_theme() == EDITOR_THEME_WHITE else "white"
+        bg = "SystemScrollbar" if self.get_theme() == EDITOR_THEME_WHITE else "white"
         prop_update = {
             "gui_type": "Frame",
             "is_main": 1,
@@ -958,7 +969,7 @@ class tkinterEditor(componentMgr):
 
     def change_debug_window_ui(self):
         """
-        打开关闭new_project界面
+        打开关闭debug_window界面
         :return: None
         """
         if self.is_debug_window_show:

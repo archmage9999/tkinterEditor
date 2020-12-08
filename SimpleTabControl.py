@@ -3,6 +3,7 @@
 
 from tkinter import Frame
 from functools import partial
+from componentProperty import get_pixel_height, get_pixel_width
 
 
 class SimpleTabControl(Frame):
@@ -101,14 +102,15 @@ class SimpleTabControl(Frame):
         tab_button.set_handle_tab_close(partial(self.del_tab, tab_index))
 
         # 修改frame的size
-        tab_frame.place_forget()
         tab_frame.configure(
-            width=self["width"],
-            height=self["height"] - tab_button.winfo_reqheight() - self.get_btn_frame_distance()
+            width=get_pixel_width(self),
+            height=get_pixel_height(self) - get_pixel_height(tab_button) - self.get_btn_frame_distance()
         )
 
         if hasattr(tab_frame, "on_size_change"):
             tab_frame.on_size_change()
+
+        tab_frame.place_forget()
 
         self.add_tab_index()
         self.do_layout()
@@ -146,7 +148,10 @@ class SimpleTabControl(Frame):
             cur_tab_frame.place_forget()
 
         # 显示新Frame
-        new_tab_frame.place(x=0, y=new_tab_button.winfo_reqheight() + self.get_btn_frame_distance(), anchor="nw")
+        new_tab_frame.place(
+            x=0, y=get_pixel_height(new_tab_button) + self.get_btn_frame_distance(), anchor="nw",
+            width=new_tab_frame['width'], height=new_tab_frame['height'],
+        )
         if hasattr(new_tab_button, "on_tab_selected"):
             new_tab_button.on_tab_selected()
 
@@ -206,4 +211,4 @@ class SimpleTabControl(Frame):
         pos_x = 0
         for tab_button in tab_buttons:
             tab_button.place_configure(x=pos_x, y=0, anchor="nw")
-            pos_x += tab_button.winfo_reqwidth() + self.get_col_distance()
+            pos_x += get_pixel_width(tab_button) + self.get_col_distance()

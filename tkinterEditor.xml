@@ -305,11 +305,11 @@
 				<background>black</background>
 				<component_name>debug_window</component_name>
 				<height>990</height>
-				<input_height>5</input_height>
-				<input_width>274</input_width>
+				<input_height>65</input_height>
+				<input_width>1920</input_width>
 				<input_pos_y>977</input_pos_y>
-				<output_height>72</output_height>
-				<output_width>274</output_width>
+				<output_height>500</output_height>
+				<output_width>1920</output_width>
 				<x>735</x>
 				<y>450</y>
 				<positionfrom>program</positionfrom>

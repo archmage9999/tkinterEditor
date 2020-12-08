@@ -4,7 +4,7 @@
 import sys
 from tkinter import Button
 from ScrollCanvas import ScrollCanvas
-from componentProperty import update_all_property, get_default_component_info
+from componentProperty import update_all_property, get_default_component_info, get_pixel_width
 
 
 def create_default_component(master, component_type, component_name, prop=None, use_name=True):
@@ -121,7 +121,7 @@ class ScrollCols(ScrollCanvas):
         pos_x = self.get_pos_x_default()
         for child in sorted_children:
             child.place(x=pos_x, y=child.place_info().get("y", 0))
-            pos_x += child.winfo_reqwidth() + self.get_col_distance()
+            pos_x += get_pixel_width(child) + self.get_col_distance()
         self.update_scroll()
 
 

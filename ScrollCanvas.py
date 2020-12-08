@@ -3,7 +3,7 @@
 
 import sys
 from tkinter import Canvas, Frame, Scrollbar
-from componentProperty import update_all_property, get_default_component_info
+from componentProperty import update_all_property, get_default_component_info, get_pixel_width, get_pixel_height
 
 
 def create_default_component(master, component_type, component_name, prop=None, use_name=True):
@@ -145,13 +145,13 @@ class ScrollCanvas(Canvas):
         """
         prop_scroll_y = {
             "command": self.yview,
-            "width": self.scroll_y_width, "height": self.scroll_y_height
+            "pixel_width": self.scroll_y_width, "pixel_height": self.scroll_y_height
         }
         create_default_component(self, "Scrollbar", "scroll_bar_y", prop_scroll_y)
 
         prop_scroll_x = {
             "orient": "horizontal", "command": self.xview,
-            "width":self.scroll_x_width, "height":self.scroll_x_height
+            "pixel_width":self.scroll_x_width, "pixel_height":self.scroll_x_height
         }
         create_default_component(self, "Scrollbar", "scroll_bar_x", prop_scroll_x)
 
@@ -176,8 +176,8 @@ class ScrollCanvas(Canvas):
         if self.scroll_bar_x is None:
             return
 
-        self.scroll_bar_x.place_configure(x=1, y=int(self["height"]) - self.scroll_x_height)
-        self.scroll_bar_x.place_configure(width=int(self["width"]) - int(self.scroll_bar_y.place_info().get("width", 0)) - 1)
+        self.scroll_bar_x.place_configure(x=1, y=get_pixel_height(self) - self.scroll_x_height)
+        self.scroll_bar_x.place_configure(width=get_pixel_width(self) - get_pixel_width(self.scroll_bar_y) - 1)
         self.scroll_bar_x.place_configure(height=self.scroll_x_height)
 
         # 隐藏水平滑动条
@@ -192,9 +192,9 @@ class ScrollCanvas(Canvas):
         if self.scroll_bar_y is None:
             return
 
-        self.scroll_bar_y.place_configure(x=int(self["width"]) - int(self.scroll_y_width), y=2)
+        self.scroll_bar_y.place_configure(x=get_pixel_width(self) - int(self.scroll_y_width), y=2)
         self.scroll_bar_y.place_configure(width=self.scroll_y_width)
-        self.scroll_bar_y.place_configure(height=int(self["height"]) - 2)
+        self.scroll_bar_y.place_configure(height=get_pixel_height(self) - 2)
 
         # 隐藏垂直滑动条
         if not self.get_is_show_scroll_y():
@@ -208,8 +208,8 @@ class ScrollCanvas(Canvas):
         if self.slide_window is None:
             return
 
-        self.slide_window["width"] = int(self["width"])
-        self.slide_window["height"] = int(self["height"])
+        self.slide_window.configure(width=get_pixel_width(self))
+        self.slide_window.configure(height=get_pixel_height(self))
 
     def update_scroll(self):
         """
@@ -229,12 +229,12 @@ class ScrollCanvas(Canvas):
         is_always_show = self.get_is_always_show_scroll()
 
         visible = False
-        if pos_y > int(self["height"]):
-            self.slide_window["height"] = pos_y + 20
+        if pos_y > get_pixel_height(self):
+            self.slide_window.configure(height=pos_y + 20)
             visible = True
         else:
-            if int(self.slide_window["height"]) > int(self["height"]):
-                self.slide_window["height"] = int(self["height"]) - self.scroll_x_height
+            if int(self.slide_window["height"]) > get_pixel_height(self):
+                self.slide_window.configure(height=get_pixel_height(self) - self.scroll_x_height)
 
         # 一直显示垂直滑动条
         if is_always_show:
@@ -256,8 +256,8 @@ class ScrollCanvas(Canvas):
         pos_y = 0
 
         for (childName, child) in self.slide_window.children.items():
-            if int(child.place_info()["y"]) + child.winfo_reqheight() > pos_y:
-                pos_y = int(child.place_info()["y"]) + child.winfo_reqheight()
+            if int(child.place_info()["y"]) + get_pixel_height(child) > pos_y:
+                pos_y = int(child.place_info()["y"]) + get_pixel_height(child)
 
         return pos_y
 
@@ -270,12 +270,12 @@ class ScrollCanvas(Canvas):
         is_always_show = self.get_is_always_show_scroll()
 
         visible = False
-        if pos_x > int(self["width"]):
-            self.slide_window["width"] = pos_x + 20
+        if pos_x > get_pixel_width(self):
+            self.slide_window.configure(width=pos_x + 20)
             visible = True
         else:
-            if int(self.slide_window["width"]) > int(self["width"]):
-                self.slide_window["width"] = int(self["width"]) - self.scroll_y_width
+            if int(self.slide_window["width"]) > get_pixel_width(self):
+                self.slide_window.configure(width=get_pixel_width(self) - self.scroll_y_width)
 
         # 一直显示垂直滑动条
         if is_always_show:
@@ -297,8 +297,8 @@ class ScrollCanvas(Canvas):
         pos_x = 0
 
         for (childName, child) in self.slide_window.children.items():
-            if int(child.place_info()["x"]) + child.winfo_reqwidth() > pos_x:
-                pos_x = int(child.place_info()["x"]) + child.winfo_reqwidth()
+            if int(child.place_info()["x"]) + get_pixel_width(child) > pos_x:
+                pos_x = int(child.place_info()["x"]) + get_pixel_width(child)
 
         return pos_x
 
@@ -308,7 +308,7 @@ class ScrollCanvas(Canvas):
         :param event:
         :return:None
         """
-        if int(self.slide_window["height"]) <= int(self["height"]):
+        if int(self.slide_window["height"]) <= get_pixel_height(self):
             return
         units = -5 if event.delta > 0 else 5
         self.yview_scroll(units, "units")
@@ -319,7 +319,7 @@ class ScrollCanvas(Canvas):
         :param event:
         :return:None
         """
-        if int(self.slide_window["width"]) <= int(self["width"]):
+        if int(self.slide_window["width"]) <= get_pixel_width(self):
             return
         units = -5 if event.delta > 0 else 5
         self.xview_scroll(units, "units")

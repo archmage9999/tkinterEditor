@@ -132,6 +132,7 @@ class EditorTree(ScrollCanvas):
         self.node_num += 1
         if self.node_num >= int(self.tree["height"]):
             self.tree.configure(height=int(self.tree["height"])+1)
+            self.tree.place_configure(height=self.tree.winfo_reqheight())
         self.update_scroll()
 
     def open_all_node(self, item):

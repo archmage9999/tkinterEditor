@@ -5,6 +5,7 @@ from tkinter import END
 from componentProperty import update_single_prop
 from componentDragAble import ComponentDragAble
 
+
 class editComponent(ComponentDragAble):
 
     def __init__(self, editor, component, component_info, component_master, parent):
@@ -15,11 +16,7 @@ class editComponent(ComponentDragAble):
         self.component_master = component_master
         self.parent = parent
         self.children = []
-        self.can_not_move = ("Toplevel")
-        self.can_not_sizing = (
-            "Label", "Button", "Checkbutton", "Entry", "Text", "Listbox", "Scrollbar", "Toplevel",
-            "Treeview", "Message", "Radiobutton", "Scale", "Spinbox", "Separator", "Progressbar"
-        )
+        self.can_not_move = ("Toplevel",)
 
     def set_component_info(self, component_info):
         if self.component_info is component_info:
@@ -85,7 +82,14 @@ class editComponent(ComponentDragAble):
         self.editor.property_list.add_show_rows(self)
         if not is_tree_select:
             self.editor.treeview.tree.selection_set(self.name)
-        self.component.master.configure(highlightthickness=2)
+
+        self.component.master.place(
+            x=int(self.component_info["x"]) - 8, y=int(self.component_info["y"]) - 8,
+            width=int(self.component_info["pixel_width"]) + 16, height=int(self.component_info["pixel_height"]) + 16
+        )
+        self.component.place(x=8, y=8)
+        self.component.master.tk.call('lower', self.component.master._w)
+        self.component.master.show()
 
     def on_edit_component_cancel_select(self):
         """
@@ -95,7 +99,36 @@ class editComponent(ComponentDragAble):
         if not self.component or not self.component.master:
             return
 
-        self.component.master.configure(highlightthickness=0)
+        self.component.master.place(
+            x=self.component_info["x"], y=self.component_info["y"],
+            width=self.component_info["pixel_width"], height=self.component_info["pixel_height"]
+        )
+        self.component.place(x=0, y=0)
+        self.component.master.hide()
+
+    def on_edit_component_configure(self, is_selected):
+        """
+        当编辑控件尺寸变化时
+        :return: None
+        """
+        width = self.component.winfo_width()
+        height = self.component.winfo_height()
+        if is_selected:
+            width += 16
+            height += 16
+        update_single_prop(self.component.master, "pixel_width", width, "SelectedCanvas")
+        update_single_prop(self.component.master, "pixel_height", height, "SelectedCanvas")
+        if is_selected:
+            self.component.master.after_idle(self.component.master.show)
+
+    def on_edit_component_master_resize_complete(self):
+        """
+        编辑控件master尺寸变化后调用
+        :return: None
+        """
+        width = self.component.master.winfo_width() - 16
+        height = self.component.master.winfo_height() - 16
+        self.update_property({"pixel_width": width, "pixel_height": height})
 
     def update_property(self, prop_dict, not_update=None):
         """
@@ -116,27 +149,22 @@ class editComponent(ComponentDragAble):
             if not_update != "component":
                 for prop_name, prop_value in prop_dict.items():
                     # 更改坐标的话修改控件的parent
-                    if prop_name in ("x", "y", "anchor"):
-                        update_single_prop(self.component.master, prop_name, prop_value, "Frame")
+                    if prop_name in ("x", "y"):
+                        update_single_prop(self.component.master, prop_name, int(prop_value) - 8, "SelectedCanvas")
                         continue
                     update_single_prop(self.component, prop_name, prop_value, self.gui_type)
                     # 更改图片的话更新一下尺寸
                     if prop_name == "image" and prop_value not in ("", "None"):
-                        self.update_property({"width":0, "height":0,}, "component")
-                    # 更改尺寸相关的话修改控件的parent
-                    if prop_name in ("image", "width", "height", "borderwidth", "highlightthickness", "padx", "pady",
-                        "relief", "font"):
-                        width = self.component.winfo_reqwidth() + 4
-                        height = self.component.winfo_reqheight() + 4
-                        if self.gui_type in ("Progressbar", "Scrollbar", "Separator"):
-                            width = int(self.component_info["width"]) + 4
-                            height = int(self.component_info["height"]) + 4
-                        update_single_prop(self.component.master, "width", width, "Frame")
-                        update_single_prop(self.component.master, "height", height, "Frame")
+                        self.component.after_idle(self.update_property,
+                            {
+                                "pixel_width": self.component.winfo_reqwidth(),
+                                "pixel_height": self.component.winfo_reqheight(),
+                            }, "component"
+                        )
                     # 更改背景的话更新一下child的背景
                     if prop_name == "background":
                         for child in self.children:
-                            update_single_prop(child.component.master, "background", prop_value, "Frame")
+                            update_single_prop(child.component.master, "background", prop_value, "SelectedCanvas")
                 pass
 
             # 更新树
@@ -155,7 +183,7 @@ class editComponent(ComponentDragAble):
             return
 
         parent_info = self.parent.get_component_info()
-        if parent_info != None:
+        if parent_info is not None:
             parent_info["children"].remove(self.component_info)
 
         master = self.component.master
@@ -173,23 +201,11 @@ class editComponent(ComponentDragAble):
     def get_real_component(self, component):
         return component.master
 
-    def change_width(self, component, width):
-        """
-        修改宽度
-        :param component: 控件
-        :param width: 宽度
-        :return: None
-        """
-        self.update_property({"width": width,})
+    def get_real_component_x(self, component):
+        return int(self.get_real_component(component).place_info()["x"]) + 8
 
-    def change_height(self, component, height):
-        """
-        修改高度
-        :param component: 控件
-        :param height: 高度
-        :return: None
-        """
-        self.update_property({"height": height,})
+    def get_real_component_y(self, component):
+        return int(self.get_real_component(component).place_info()["y"]) + 8
 
     def change_pos_x(self, component, pos_x):
         """

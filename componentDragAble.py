@@ -4,6 +4,7 @@
 import re
 geometry_pattern = re.compile("(\d+)x(\d+)\+(-?\d+)\+(-?\d+)")
 
+
 # 可拖拽模块
 class ComponentDragAble:
 
@@ -22,16 +23,6 @@ class ComponentDragAble:
         self.is_check_side_y = False
         # 是否正在拖拽
         self.is_dragging = False
-        # 旧光标图标
-        self.old_cursor = None
-        # 是否在改变大小
-        self.is_sizing = False
-        # 旧宽度
-        self.old_width = 0
-        # 旧高度
-        self.old_height = 0
-        # 禁止设置大小
-        self.can_not_sizing = ()
         # 禁止移动
         self.can_not_move = ()
 
@@ -55,20 +46,11 @@ class ComponentDragAble:
             return
         self.is_check_side_y = is_check_side_y
 
-    def get_parent_geometry(self, component):
+    @staticmethod
+    def get_parent_geometry(component):
         geometry = component.master.master.winfo_geometry()
         matched = geometry_pattern.match(geometry)
         return matched.groups()
-
-    def cursor_in_right_bottom(self, component):
-        """
-        检查光标是否在界面右下角
-        :param component: 控件
-        :return: bool
-        """
-        if self.start_x > component.winfo_reqwidth() - 10 and self.start_y > component.winfo_reqheight() - 10:
-            return True
-        return False
 
     def on_begin_drag(self):
         """
@@ -118,31 +100,6 @@ class ComponentDragAble:
         if self.is_able_x or self.is_able_y:
             self.on_begin_drag()
 
-        self.old_cursor = component["cursor"]
-        if self.cursor_in_right_bottom(component) and component.__class__.__name__ not in self.can_not_sizing:
-            component.configure(cursor="sizing")
-            self.is_sizing = True
-            self.old_width = component.winfo_reqwidth()
-            self.old_height = component.winfo_reqheight()
-
-    def change_width(self, component, width):
-        """
-        修改宽度
-        :param component: 控件
-        :param width: 宽度
-        :return: None
-        """
-        component.configure(width=width)
-
-    def change_height(self, component, height):
-        """
-        修改高度
-        :param component: 控件
-        :param height: 高度
-        :return: None
-        """
-        component.configure(height=height)
-
     def change_pos_x(self, component, pos_x):
         """
         修改x
@@ -163,6 +120,12 @@ class ComponentDragAble:
 
     def get_real_component(self, component):
         return component
+
+    def get_real_component_x(self, component):
+        return int(self.get_real_component(component).place_info()["x"])
+
+    def get_real_component_y(self, component):
+        return int(self.get_real_component(component).place_info()["y"])
 
     def handle_mouse_motion(self, event, component):
         """
@@ -185,41 +148,31 @@ class ComponentDragAble:
 
         if self.is_able_x:
             # 计算要设置的位置
-            to_x = event.x - self.start_x + int(self.get_real_component(component).place_info()["x"])
+            to_x = event.x - self.start_x + self.get_real_component_x(component)
             # 对位置进行边缘检测
             if self.is_check_side_x:
                 if to_x < 0:
                     to_x = 0
-                elif to_x + component.winfo_reqwidth() > int(groups[0]):
-                    to_x = int(groups[0]) - component.winfo_reqwidth()
+                elif to_x + component.winfo_width() > int(groups[0]):
+                    to_x = int(groups[0]) - component.winfo_width()
 
-            # 光标在右下角,设置大小
-            if self.is_sizing:
-                width = max(0, self.old_width + (event.x - self.start_x))
-                self.change_width(component, width)
-            else:
-                # 设置坐标
-                if component.__class__.__name__ not in self.can_not_move:
-                    self.change_pos_x(component, to_x)
+            # 设置坐标
+            if component.__class__.__name__ not in self.can_not_move:
+                self.change_pos_x(component, to_x)
 
         if self.is_able_y:
             # 计算要设置的位置
-            to_y = event.y-self.start_y+int(self.get_real_component(component).place_info()["y"])
+            to_y = event.y-self.start_y+self.get_real_component_y(component)
             # 对位置进行边缘检测
             if self.is_check_side_y:
                 if to_y < 0:
                     to_y = 0
-                elif to_y + component.winfo_reqheight() > int(groups[1]):
-                    to_y = int(groups[1]) - component.winfo_reqheight()
+                elif to_y + component.winfo_height() > int(groups[1]):
+                    to_y = int(groups[1]) - component.winfo_height()
 
-            # 光标在右下角,设置大小
-            if self.is_sizing:
-                height = max(0, self.old_height + (event.y - self.start_y))
-                self.change_height(component, height)
-            else:
-                # 设置坐标
-                if component.__class__.__name__ not in self.can_not_move:
-                    self.change_pos_y(component, to_y)
+            # 设置坐标
+            if component.__class__.__name__ not in self.can_not_move:
+                self.change_pos_y(component, to_y)
 
         if self.is_able_x or self.is_able_y:
             self.on_dragging()
@@ -245,6 +198,3 @@ class ComponentDragAble:
 
         if self.is_able_x or self.is_able_y:
             self.on_end_drag(component)
-
-        component.configure(cursor=self.old_cursor)
-        self.is_sizing = False

@@ -3,7 +3,7 @@
 
 import sys
 from ScrollCanvas import ScrollCanvas
-from componentProperty import update_all_property, get_default_component_info
+from componentProperty import update_all_property, get_default_component_info, get_pixel_height
 
 
 def create_default_component(master, component_type, component_name, prop=None, use_name=True):
@@ -120,5 +120,5 @@ class ScrollRows(ScrollCanvas):
         pos_y = self.get_pos_y_default()
         for child in sorted_children:
             child.place(x=child.place_info().get("x", 0), y=pos_y)
-            pos_y += child.winfo_reqheight() + self.get_row_distance()
+            pos_y += get_pixel_height(child) + self.get_row_distance()
         self.update_scroll()

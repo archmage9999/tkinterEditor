@@ -14,6 +14,7 @@ from ScrollCanvas import ScrollCanvas
 from ScrollRows import ScrollRows
 from EditorPropertyList import EditorPropertyList
 from debugInterpreter import DebugInterpreterFrame
+from selectedCanvas import SelectedCanvas
 
 
 def create_component_from_dict(master, component_info):

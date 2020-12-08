@@ -226,10 +226,10 @@ class DebugInterpreterFrame(Toplevel):
         """
         # todo：之后输入与输出框改成动态计算的，目前先不处理
 
-        self.debug_output.configure(width=self.get_output_width(), height=self.get_output_height())
-        self.debug_input.configure(width=self.get_input_width(), height=self.get_input_height())
-        self.debug_output.place(x=0, y=0, anchor='nw')
-        self.debug_input.place(x=0, y=self.get_input_pos_y(), anchor='nw')
+        # self.debug_output.configure(width=self.get_output_width(), height=self.get_output_height())
+        # self.debug_input.configure(width=self.get_input_width(), height=self.get_input_height())
+        self.debug_output.place(x=0, y=0, anchor='nw', width=self.get_output_width(), height=self.get_output_height())
+        self.debug_input.place(x=0, y=self.get_input_pos_y(), anchor='nw', width=self.get_input_width(), height=self.get_input_height())
 
     def debug_write(self, msg):
         """

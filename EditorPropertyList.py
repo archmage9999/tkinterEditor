@@ -13,7 +13,7 @@ from tkinter.filedialog import askopenfilename
 from ScrollRows import ScrollRows
 from ScrollCols import ScrollCols
 from WidgetRedirector import WidgetRedirector
-from componentProperty import update_all_property, get_default_component_info, get_all_prop_name
+from componentProperty import update_all_property, get_default_component_info, get_all_prop_name, get_pixel_width, get_pixel_height
 
 
 def create_default_component(master, component_type, component_name, prop=None, use_name=True):
@@ -146,7 +146,7 @@ class EntryWithBtn(Entry):
 
         prop = {
             "width": 0, "height": 1,
-            "x": self.winfo_reqwidth() - 15,
+            "x": get_pixel_width(self) - 15,
             "text": "...", "background": "grey",
         }
         btn, info = create_default_component(self, "Button", "function_btn", prop, True)
@@ -388,8 +388,8 @@ class EditorPropertyList(ScrollRows):
         pos_x = 0
 
         for child in self.get_sorted_rows():
-            if int(child.place_info()["x"]) + child.winfo_reqwidth() > pos_x:
-                pos_x = int(child.place_info()["x"]) + child.winfo_reqwidth()
+            if int(child.place_info()["x"]) + get_pixel_width(child) > pos_x:
+                pos_x = int(child.place_info()["x"]) + get_pixel_width(child)
 
         return pos_x
 
@@ -398,8 +398,8 @@ class EditorPropertyList(ScrollRows):
         pos_y = 0
 
         for child in self.get_sorted_rows():
-            if int(child.place_info()["y"]) + child.winfo_reqheight() > pos_y:
-                pos_y = int(child.place_info()["y"]) + child.winfo_reqheight()
+            if int(child.place_info()["y"]) + get_pixel_height(child) > pos_y:
+                pos_y = int(child.place_info()["y"]) + get_pixel_height(child)
 
         return pos_y
 
@@ -429,7 +429,7 @@ class EditorPropertyList(ScrollRows):
             "is_show_scroll_x": 0,
             "is_show_scroll_y": 0,
             "is_always_show_scroll": 0,
-            "width": self.winfo_reqwidth() - 18,
+            "width": get_pixel_width(self) - 18,
             "height": self.row_height,
         }
 

@@ -62,6 +62,7 @@ PROP_CONFIGURE = {
         "ScrollCols": ("white", "string",),
         "ScrollCanvas": ("white", "string",),
         "ScrollRows": ("white", "string",),
+        "SelectedCanvas": ("white", "string",),
     },
     "bigincrement": {
         "Scale": (0, "int",),
@@ -94,6 +95,7 @@ PROP_CONFIGURE = {
         "ScrollCols": (0, "int",),
         "ScrollCanvas": (0, "int",),
         "ScrollRows": (0, "int",),
+        "SelectedCanvas": (0, "int",),
     },
     "buttonbackground": {
         "Spinbox": ("None", "string",),
@@ -138,6 +140,7 @@ PROP_CONFIGURE = {
         "ScrollCols": ("arrow", "string",),
         "ScrollCanvas": ("arrow", "string",),
         "ScrollRows": ("arrow", "string",),
+        "SelectedCanvas": ("arrow", "string",),
     },
     "compound": {
         "Label": ("center", "string",),
@@ -151,6 +154,7 @@ PROP_CONFIGURE = {
     "confine": {
         "Canvas": (True, "bool",),
         "ScrollCanvas": (True, "bool",),
+        "SelectedCanvas": (True, "bool",),
     },
     "closeenough": {
         "Canvas": (1.0, "float",),
@@ -160,6 +164,7 @@ PROP_CONFIGURE = {
         "ScrollCols": (1.0, "float",),
         "ScrollCanvas": (1.0, "float",),
         "ScrollRows": (1.0, "float",),
+        "SelectedCanvas": (1.0, "float",),
     },
     "digits": {
         "Scale": (0, "int",),
@@ -250,6 +255,7 @@ PROP_CONFIGURE = {
         "ScrollCols": (300, "int",),
         "ScrollCanvas": (300, "int",),
         "ScrollRows": (300, "int",),
+        "SelectedCanvas": (300, "int",),
     },
     "highlightbackground": {
         "Button": ("red", "string",),
@@ -278,6 +284,7 @@ PROP_CONFIGURE = {
         "ScrollCols": ("red", "string",),
         "ScrollCanvas": ("red", "string",),
         "ScrollRows": ("red", "string",),
+        "SelectedCanvas": ("red", "string",),
     },
     "highlightcolor": {
         "Button": ("None", "string",),
@@ -306,6 +313,7 @@ PROP_CONFIGURE = {
         "ScrollCols": ("None", "string",),
         "ScrollCanvas": ("None", "string",),
         "ScrollRows": ("None", "string",),
+        "SelectedCanvas": ("None", "string",),
     },
     "highlightthickness": {
         "Button": (0, "int",),
@@ -334,6 +342,7 @@ PROP_CONFIGURE = {
         "ScrollCols": (0, "int",),
         "ScrollCanvas": (0, "int",),
         "ScrollRows": (0, "int",),
+        "SelectedCanvas": (0, "int",),
     },
     "increment": {
         "Spinbox": (1, "float",),
@@ -349,6 +358,7 @@ PROP_CONFIGURE = {
         "Text": ("SystemWindowText", "string",),
         "EntryWithBtn": ("SystemWindowText", "string",),
         "ScrollCanvas": ("SystemWindowText", "string",),
+        "SelectedCanvas": ("SystemWindowText", "string",),
     },
     "insertborderwidth": {
         "Canvas": (0, "int",),
@@ -357,6 +367,7 @@ PROP_CONFIGURE = {
         "Text": (0, "int",),
         "EntryWithBtn": (0, "int",),
         "ScrollCanvas": (0, "int",),
+        "SelectedCanvas": (0, "int",),
     },
     "insertofftime": {
         "Canvas": (300, "int",),
@@ -365,6 +376,7 @@ PROP_CONFIGURE = {
         "Text": (300, "int",),
         "EntryWithBtn": (300, "int",),
         "ScrollCanvas": (300, "int",),
+        "SelectedCanvas": (300, "int",),
     },
     "insertontime": {
         "Canvas": (600, "int",),
@@ -373,6 +385,7 @@ PROP_CONFIGURE = {
         "Text": (600, "int",),
         "EntryWithBtn": (600, "int",),
         "ScrollCanvas": (600, "int",),
+        "SelectedCanvas": (600, "int",),
     },
     "insertwidth": {
         "Canvas": (2, "int",),
@@ -381,6 +394,7 @@ PROP_CONFIGURE = {
         "Spinbox": (2, "int",),
         "EntryWithBtn": (2, "int",),
         "ScrollCanvas": (2, "int",),
+        "SelectedCanvas": (2, "int",),
     },
     "image": {
         "Button": ("None", "string",),
@@ -486,6 +500,7 @@ PROP_CONFIGURE = {
         "ScrollCols": ("flat", "string",),
         "ScrollCanvas": ("flat", "string",),
         "ScrollRows": ("flat", "string",),
+        "SelectedCanvas": ("flat", "string",),
     },
     "repeatdelay": {
         "Button": (0, "int",),
@@ -538,6 +553,7 @@ PROP_CONFIGURE = {
         "Spinbox": ("normal", "string",),
         "EntryWithBtn": ("normal", "string",),
         "ScrollCanvas": ("normal", "string",),
+        "SelectedCanvas": ("normal", "string",),
     },
     "selectbackground": {
         "Canvas": ("SystemHighlight", "string",),
@@ -547,6 +563,7 @@ PROP_CONFIGURE = {
         "Text": ("SystemHighlight", "string",),
         "EntryWithBtn": ("SystemHighlight", "string",),
         "ScrollCanvas": ("SystemHighlight", "string",),
+        "SelectedCanvas": ("SystemHighlight", "string",),
     },
     "selectborderwidth": {
         "Canvas": (0, "int",),
@@ -556,6 +573,7 @@ PROP_CONFIGURE = {
         "Text": (0, "int",),
         "EntryWithBtn": (0, "int",),
         "ScrollCanvas": (0, "int",),
+        "SelectedCanvas": (0, "int",),
     },
     "selectcolor": {
         "Checkbutton": ("SystemWindow", "string",),
@@ -569,6 +587,7 @@ PROP_CONFIGURE = {
         "Text": ("SystemHighlightText", "string",),
         "EntryWithBtn": ("SystemHighlightText", "string",),
         "ScrollCanvas": ("SystemHighlightText", "string",),
+        "SelectedCanvas": ("SystemHighlightText", "string",),
     },
     "selectmode": {
         "Listbox": ("single", "string",),
@@ -625,6 +644,7 @@ PROP_CONFIGURE = {
         "ScrollCols": (0, "int",),
         "ScrollCanvas": (0, "int",),
         "ScrollRows": (0, "int",),
+        "SelectedCanvas": (0, "int",),
     },
     "tickinterval": {
         "Scale": (0, "int",),
@@ -677,6 +697,7 @@ PROP_CONFIGURE = {
         "ScrollCols": (300, "int",),
         "ScrollCanvas": (300, "int",),
         "ScrollRows": (300, "int",),
+        "SelectedCanvas": (300, "int",),
     },
     "wrap": {
         "Text": ("char", "string",),
@@ -724,6 +745,7 @@ PROP_PLACE_CONFIGURE = {
         "ScrollCols": (0, "int",),
         "ScrollCanvas": (0, "int",),
         "ScrollRows": (0, "int",),
+        "SelectedCanvas": (0, "int",),
     },
     "y": {
         "Button": (0, "int",),
@@ -755,6 +777,7 @@ PROP_PLACE_CONFIGURE = {
         "ScrollCols": (0, "int",),
         "ScrollCanvas": (0, "int",),
         "ScrollRows": (0, "int",),
+        "SelectedCanvas": (0, "int",),
     },
     "anchor": {
         "Button": ("nw", "string",),
@@ -786,6 +809,7 @@ PROP_PLACE_CONFIGURE = {
         "ScrollCols": ("nw", "string",),
         "ScrollCanvas": ("nw", "string",),
         "ScrollRows": ("nw", "string",),
+        "SelectedCanvas": ("nw", "string",),
     },
     "width": {
         "Progressbar": (100, "int",),
@@ -797,6 +821,70 @@ PROP_PLACE_CONFIGURE = {
         "Scrollbar": (200, "int",),
         "Separator": (20, "int",),
     },
+    "pixel_width": {
+        "Button": (0, "int",),
+        "Canvas": (0, "int",),
+        "Checkbutton": (0, "int",),
+        "Combobox": (0, "int",),
+        "Entry": (0, "int",),
+        "Frame": (0, "int",),
+        "Label": (0, "int",),
+        "LabelFrame": (0, "int",),
+        "Listbox": (0, "int",),
+        "Message": (0, "int",),
+        "PanedWindow": (0, "int",),
+        "Progressbar": (100, "int",),
+        "Radiobutton": (0, "int",),
+        "Scale": (0, "int",),
+        "Scrollbar": (16, "int",),
+        "Separator": (1, "int",),
+        "Spinbox": (0, "int",),
+        "Text": (0, "int",),
+        "Treeview": (0, "int",),
+        "EditorProperty": (0, "int",),
+        "EditorPropertyList": (0, "int",),
+        "EditorTabControl": (0, "int",),
+        "EditorTabControlBtn": (0, "int",),
+        "EntryWithBtn": (0, "int",),
+        "EditorTree": (0, "int",),
+        "ScrollButtonCols": (0, "int",),
+        "ScrollCols": (0, "int",),
+        "ScrollCanvas": (0, "int",),
+        "ScrollRows": (0, "int",),
+        "SelectedCanvas": (0, "int",),
+    },
+    "pixel_height": {
+        "Button": (0, "int",),
+        "Canvas": (0, "int",),
+        "Checkbutton": (0, "int",),
+        "Combobox": (0, "int",),
+        "Entry": (0, "int",),
+        "Frame": (0, "int",),
+        "Label": (0, "int",),
+        "LabelFrame": (0, "int",),
+        "Listbox": (0, "int",),
+        "Message": (0, "int",),
+        "PanedWindow": (0, "int",),
+        "Progressbar": (30, "int",),
+        "Radiobutton": (0, "int",),
+        "Scale": (0, "int",),
+        "Scrollbar": (200, "int",),
+        "Separator": (20, "int",),
+        "Spinbox": (0, "int",),
+        "Text": (0, "int",),
+        "Treeview": (0, "int",),
+        "EditorProperty": (0, "int",),
+        "EditorPropertyList": (0, "int",),
+        "EditorTabControl": (0, "int",),
+        "EditorTabControlBtn": (0, "int",),
+        "EntryWithBtn": (0, "int",),
+        "EditorTree": (0, "int",),
+        "ScrollButtonCols": (0, "int",),
+        "ScrollCols": (0, "int",),
+        "ScrollCanvas": (0, "int",),
+        "ScrollRows": (0, "int",),
+        "SelectedCanvas": (0, "int",),
+    }
 }
 
 
@@ -911,6 +999,38 @@ PROP_NAME_CHANGE = {
 }
 
 
+def get_pixel_width(component):
+    """
+    获取控件的像素宽度
+    :param component: 控件
+    :return: int
+    """
+    width = component.place_info().get("width", -1)
+    if width == -1:
+        return 0
+
+    if not width:
+        return component.winfo_reqwidth()
+
+    return int(width)
+
+
+def get_pixel_height(component):
+    """
+    获取控件的像素高度
+    :param component: 控件
+    :return: int
+    """
+    height = component.place_info().get("height", -1)
+    if height == -1:
+        return 0
+
+    if not height:
+        return component.winfo_reqheight()
+
+    return int(height)
+
+
 def change_prop(prop_type, prop):
     """
     根据属性名字转换属性
@@ -949,6 +1069,14 @@ def update_place_property(component, component_info, gui_type):
         if gui_type not in PROP_PLACE_CONFIGURE[prop_name]:
             continue
         prop = change_prop(PROP_PLACE_CONFIGURE[prop_name][gui_type][1], prop)
+        if prop_name == "pixel_width":
+            if int(prop) != 0:
+                component.place_configure({'width': prop})
+            continue
+        if prop_name == "pixel_height":
+            if int(prop) != 0:
+                component.place_configure({'height': prop})
+            continue
         component.place_configure({prop_name: prop})
 
     return
@@ -973,9 +1101,21 @@ def update_normal_property(component, component_info, gui_type):
         if prop_name in PROP_NAME_CHANGE:
             prop_name = PROP_NAME_CHANGE[prop_name]
         # image属性在下面处理
-        if prop_name == "image":
+        if prop_name in ("image", "width", "height"):
             continue
         component.configure({prop_name:prop})
+
+    if gui_type in PROP_CONFIGURE["width"]:
+        prop = component_info.get("width")
+        if int(component_info.get("pixel_width", 0)) == 0:
+            component.configure(width=prop)
+            component_info["pixel_width"] = component.winfo_reqwidth()
+
+    if gui_type in PROP_CONFIGURE["height"]:
+        prop = component_info.get("height")
+        if int(component_info.get("pixel_height", 0)) == 0:
+            component.configure(height=prop)
+            component_info["pixel_height"] = component.winfo_reqheight()
 
     # 给image赋值后修改一下宽和高
     if gui_type in PROP_CONFIGURE["image"]:
@@ -983,10 +1123,6 @@ def update_normal_property(component, component_info, gui_type):
         if image != "None":
             component.photo = PhotoImage(file=image)
             component.configure(image=component.photo)
-            component.configure(width=0, height=0)
-            component_info["width"] = 0
-            component_info["height"] = 0
-        return
 
     return
 
@@ -1049,8 +1185,8 @@ def update_all_property(component, component_info, gui_type):
     :param gui_type: 控件类型
     :return: None
     """
-    update_place_property(component, component_info, gui_type)
     update_normal_property(component, component_info, gui_type)
+    update_place_property(component, component_info, gui_type)
     update_like_toplevel_property(component, component_info, gui_type)
     if hasattr(component, "on_update"):
         component.on_update()
@@ -1103,6 +1239,11 @@ def get_all_prop_name():
     all_name.update(PROP_LIKE_TOP_LEVEL.keys())
     all_name.add("component_name")
 
+    # 新版本不允许编辑width和height属性了
+    all_name.remove('width')
+    all_name.remove('height')
+    all_name.remove('anchor')
+
     return all_name
 
 
@@ -1112,11 +1253,16 @@ def update_single_prop(component, prop_name, prop_value, gui_type):
         if gui_type in PROP_CONFIGURE["image"] and prop_value != "None":
             component.photo = PhotoImage(file=prop_value)
             component.configure(image=component.photo)
+            component.place_configure({'width': '', 'height': ''})
             component.configure(width=0, height=0)
         return
 
     if prop_name in PROP_PLACE_CONFIGURE and gui_type in PROP_PLACE_CONFIGURE[prop_name]:
         prop = change_prop(PROP_PLACE_CONFIGURE[prop_name][gui_type][1], prop_value)
+        if prop_name == "pixel_width":
+            prop_name = "width"
+        elif prop_name == "pixel_height":
+            prop_name = "height"
         if prop != "None":
             component.place_configure({prop_name: prop})
         return

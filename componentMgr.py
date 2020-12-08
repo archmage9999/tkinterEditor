@@ -25,6 +25,16 @@ class componentMgr:
         # 设置大小与位置
         width = component_info["width"]
         height = component_info["height"]
+
+        pixel_width = int(component_info.get('pixel_width', '0'))
+        pixel_height = int(component_info.get('pixel_height', '0'))
+
+        if pixel_width != 0:
+            width = pixel_width
+
+        if pixel_height != 0:
+            height = pixel_height
+
         pos_x = component_info["x"]
         pos_y = component_info["y"]
 
