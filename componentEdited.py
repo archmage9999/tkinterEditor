@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from tkinter import END
+from functools import partial
 from componentProperty import update_single_prop
 from componentDragAble import ComponentDragAble
 
@@ -29,6 +30,10 @@ class editComponent(ComponentDragAble):
     @property
     def name(self):
         return self.component_info["component_name"]
+
+    @property
+    def is_main(self):
+        return int(self.component_info.get("is_main", "0")) == 1
 
     @property
     def gui_type(self):
@@ -91,6 +96,15 @@ class editComponent(ComponentDragAble):
         self.component.master.tk.call('lower', self.component.master._w)
         self.component.master.show()
 
+    def on_edit_component_multi_select(self):
+        self.component.master.place(
+            x=int(self.component_info["x"]) - 8, y=int(self.component_info["y"]) - 8,
+            width=int(self.component_info["pixel_width"]) + 16, height=int(self.component_info["pixel_height"]) + 16
+        )
+        self.component.place(x=8, y=8)
+        self.component.master.tk.call('lower', self.component.master._w)
+        self.component.master.show(True)
+
     def on_edit_component_cancel_select(self):
         """
         取消选中时
@@ -106,29 +120,60 @@ class editComponent(ComponentDragAble):
         self.component.place(x=0, y=0)
         self.component.master.hide()
 
-    def on_edit_component_configure(self, is_selected):
+    def on_edit_component_cancel_multi_select(self):
+        """
+        取消多重选中时
+        :return: None
+        """
+        if not self.component or not self.component.master:
+            return
+
+        self.component.master.place(
+            x=self.component_info["x"], y=self.component_info["y"],
+            width=self.component_info["pixel_width"], height=self.component_info["pixel_height"]
+        )
+        self.component.place(x=0, y=0)
+        self.component.master.hide()
+
+    def change_selected(self, is_fill):
+        """
+        交換选中与多重选中
+        :param is_fill: 是否填充
+        :return: None
+        """
+        self.component.master.show(is_fill)
+
+    def on_edit_component_configure(self, is_selected, is_multi_select):
         """
         当编辑控件尺寸变化时
         :return: None
         """
         width = self.component.winfo_width()
         height = self.component.winfo_height()
-        if is_selected:
+        if is_selected or is_multi_select:
             width += 16
             height += 16
+
         update_single_prop(self.component.master, "pixel_width", width, "SelectedCanvas")
         update_single_prop(self.component.master, "pixel_height", height, "SelectedCanvas")
-        if is_selected:
-            self.component.master.after_idle(self.component.master.show)
 
-    def on_edit_component_master_resize_complete(self):
+        if is_selected or is_multi_select:
+            is_fill = True if is_multi_select else False
+            self.component.master.after_idle(self.component.master.show, is_fill)
+
+    def on_edit_component_master_resize_complete(self, is_cur_edit):
         """
         编辑控件master尺寸变化后调用
+        :param is_cur_edit: 是否是当前正在编辑的
         :return: None
         """
         width = self.component.master.winfo_width() - 16
         height = self.component.master.winfo_height() - 16
-        self.update_property({"pixel_width": width, "pixel_height": height})
+        x = int(self.component.master.place_info()["x"]) + 8
+        y = int(self.component.master.place_info()["y"]) + 8
+
+        not_update = None if is_cur_edit else "prop_list"
+        self.update_property({"pixel_width": width, "pixel_height": height, "x": x, "y": y, }, not_update)
 
     def update_property(self, prop_dict, not_update=None):
         """
@@ -214,7 +259,8 @@ class editComponent(ComponentDragAble):
         :param pos_x: x
         :return: None
         """
-        self.update_property({"x": pos_x, })
+        dist = pos_x - self.get_real_component_x(component)
+        self.editor.on_edit_component_master_resizing_end(self, add_pos_x=-dist + 8)
 
     def change_pos_y(self, component, pos_y):
         """
@@ -223,4 +269,9 @@ class editComponent(ComponentDragAble):
         :param pos_y: y
         :return: None
         """
-        self.update_property({"y": pos_y, })
+        dist = pos_y - self.get_real_component_y(component)
+        self.editor.on_edit_component_master_resizing_end(self, add_pos_y=-dist + 8)
+
+    def on_end_drag(self, component):
+        ComponentDragAble.on_end_drag(self, component)
+        self.editor.on_edit_component_master_resize_complete(self)

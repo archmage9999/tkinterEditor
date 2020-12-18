@@ -43,6 +43,7 @@ class tkinterEditor(componentMgr):
         self.right_edit_menu = None                                             # 鼠标右键edit菜单
         self.edit_components = {}                                               # 存储可编辑的控件
         self.selected_component = None                                          # 当前被选中的控件
+        self.multi_selected = []                                                # 多重选择列表
         self.created_time = 0                                                   # 创建控件时的时间
         self.created_pos_x = 0                                                  # 创建控件时的坐标x
         self.created_pos_y = 0                                                  # 创建控件时的坐标y
@@ -265,8 +266,10 @@ class tkinterEditor(componentMgr):
         child_master.bind("<B1-Motion>", partial(self.on_edit_component_motion, edit_component))
         child_master.bind("<ButtonRelease-1>", partial(self.on_edit_component_btn_release, edit_component))
         child_master.bind("<Configure>", partial(self.on_edit_component_configure, edit_component))
+        child_master.bind("<Control-Button-1>", partial(self.on_edit_component_multi_selected, edit_component, False))
 
         component.master.set_on_resize_complete(partial(self.on_edit_component_master_resize_complete, edit_component))
+        component.master.set_handle_resizing_end(partial(self.on_edit_component_master_resizing_end, edit_component))
 
     def find_edit_component_by_component(self, component, path):
         """
@@ -316,17 +319,71 @@ class tkinterEditor(componentMgr):
         """
         当控件被选中
         :param edit_component: 编辑控件
+        :param is_tree_select: 是否是从树控件点击选中的
         :param event: event
         :return: None
         """
         edit_component.component.master.focus_force()
         edit_component.handle_mouse_click(event, edit_component.component)
-        if self.get_selected_component() is edit_component:
-            return
 
+        # 如果是当前选中的则什么也不干
+        cur_selected = self.get_selected_component()
+        if cur_selected is edit_component:
+            return "break"
+
+        # 如果选中的控件在多重选择列表中则将之前选中的控件加到多重选中列表
+        if edit_component in self.multi_selected:
+            cur_selected.change_selected(True)
+            edit_component.change_selected(False)
+            self.multi_selected.remove(edit_component)
+            self.multi_selected.append(cur_selected)
+            self.set_selected_component(edit_component)
+            edit_component.on_edit_component_select(is_tree_select)
+            return "break"
+
+        # 如果选中的控件不在多重选择列表中则取消当前选中与当前所有的多重选中
         self.cancel_select_component()
         self.set_selected_component(edit_component)
         edit_component.on_edit_component_select(is_tree_select)
+
+        for multi_component in self.multi_selected:
+            multi_component.on_edit_component_cancel_multi_select()
+
+        del self.multi_selected[:]
+
+        return "break"
+
+    def on_edit_component_multi_selected(self, edit_component, is_tree_select, event):
+        """
+        当控件被多重选中
+        :param edit_component: 编辑控件
+        :param is_tree_select: 是否是从树控件点击选中的
+        :param event:
+        :return: None
+        """
+        cur_selected = self.get_selected_component()
+
+        # 如果选中的是当前编辑的控件
+        if cur_selected is edit_component:
+            # 如果多重选中列表中没有数据则选中最初的控件，否则选择多重列表中第一个控件
+            if len(self.multi_selected) > 0:
+                self.cancel_select_component()
+                self.multi_selected[0].change_selected(False)
+                self.set_selected_component(self.multi_selected[0])
+                self.multi_selected[0].on_edit_component_select(is_tree_select)
+                self.multi_selected.pop(0)
+            else:
+                data = self.file_tab_window.get_data()
+                self.edit_components[data["path"]].select_first_child()
+            return "break"
+
+        if edit_component not in self.multi_selected:
+            self.multi_selected.append(edit_component)
+            edit_component.on_edit_component_multi_select()
+            return "break"
+
+        self.multi_selected.remove(edit_component)
+        edit_component.on_edit_component_cancel_multi_select()
 
         return "break"
 
@@ -365,15 +422,65 @@ class tkinterEditor(componentMgr):
         :param event: event
         :return: None
         """
-        edit_component.on_edit_component_configure(edit_component is self.selected_component)
+        is_multi_select = False
+        if edit_component in self.multi_selected:
+            is_multi_select = True
+        edit_component.on_edit_component_configure(edit_component is self.selected_component, is_multi_select)
 
     def on_edit_component_master_resize_complete(self, edit_component):
         """
-        编辑控件master尺寸变化后调用
+        编辑控件master尺寸最终变化后调用
         :param edit_component: 编辑控件
         :return: None
         """
-        edit_component.on_edit_component_master_resize_complete()
+        for component in self.multi_selected:
+            if (edit_component.is_main or component.is_main) and not component is edit_component:
+                continue
+            is_cur_edit = component is edit_component
+            component.on_edit_component_master_resize_complete(is_cur_edit)
+
+        if (edit_component.is_main or self.selected_component.is_main) and not self.selected_component is edit_component:
+            return
+
+        is_cur_edit = self.selected_component is edit_component
+        self.selected_component.on_edit_component_master_resize_complete(is_cur_edit)
+
+    def on_edit_component_master_resizing_end(self, edit_component, **args):
+        """
+        编辑控件master尺寸变化一次完成时调用
+        :param edit_component: 编辑控件
+        :return: None
+        """
+        for component in self.multi_selected:
+            if (edit_component.is_main or component.is_main) and not component is edit_component:
+                continue
+            configure_data = {}
+            if args.get("add_width", None) is not None:
+                configure_data["width"] = max(0, component.component.master.winfo_width() + args["add_width"])
+            if args.get("add_height", None) is not None:
+                configure_data["height"] = max(0, component.component.master.winfo_height() + args["add_height"])
+            if args.get("add_pos_x", None) is not None:
+                configure_data["x"] = max(0, int(component.component.master.place_info()["x"]) - args["add_pos_x"])
+            if args.get("add_pos_y", None) is not None:
+                configure_data["y"] = max(0, int(component.component.master.place_info()["y"]) - args["add_pos_y"])
+            component.component.master.place_configure(configure_data)
+            component.component.master.after_idle(component.component.master.show, True)
+
+        if (edit_component.is_main or self.selected_component.is_main) and not self.selected_component is edit_component:
+            return
+
+        configure_data = {}
+        if args.get("add_width", None) is not None:
+            configure_data["width"] = max(0, self.selected_component.component.master.winfo_width() + args["add_width"])
+        if args.get("add_height", None) is not None:
+            configure_data["height"] = max(0, self.selected_component.component.master.winfo_height() + args["add_height"])
+        if args.get("add_pos_x", None) is not None:
+            configure_data["x"] = max(0, int(self.selected_component.component.master.place_info()["x"]) - args["add_pos_x"])
+        if args.get("add_pos_y", None) is not None:
+            configure_data["y"] = max(0, int(self.selected_component.component.master.place_info()["y"]) - args["add_pos_y"])
+
+        self.selected_component.component.master.place_configure(configure_data)
+        self.selected_component.component.master.after_idle(self.selected_component.component.master.show, False)
 
     def on_gui_close(self, tab_num):
         """
@@ -871,13 +978,13 @@ class tkinterEditor(componentMgr):
         pos_y = int(edit_component.component_info["y"])
 
         if keysym == "Up":
-            edit_component.update_property({"y": pos_y - 1})
+            edit_component.change_pos_y(edit_component.component, pos_y - 1)
         elif keysym == "Down":
-            edit_component.update_property({"y": pos_y + 1})
+            edit_component.change_pos_y(edit_component.component, pos_y + 1)
         elif keysym == "Left":
-            edit_component.update_property({"x": pos_x - 1})
+            edit_component.change_pos_x(edit_component.component, pos_x - 1)
         else:
-            edit_component.update_property({"x": pos_x + 1})
+            edit_component.change_pos_x(edit_component.component, pos_x + 1)
 
     def move_up(self):
         """

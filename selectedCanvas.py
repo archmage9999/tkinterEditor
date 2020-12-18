@@ -1,8 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from tkinter import Canvas
+from tkinter import Canvas, Event
 from functools import partial
+from componentProperty import get_pixel_height, get_pixel_width
+
+
+class ResizingEvent(Event):
+
+    def __init__(self):
+        self.add_width = None
 
 
 class SelectedCanvas(Canvas):
@@ -10,18 +17,22 @@ class SelectedCanvas(Canvas):
     def __init__(self, master=None, cnf={}, **kw):
         Canvas.__init__(self, master, cnf, **kw)
         self.is_sizing = False
-        self.old_width = 0
-        self.old_height = 0
-        self.old_pos_x = 0
-        self.old_pos_y = 0
-        self.start_x = 0
-        self.start_y = 0
-        self.start_root_x = 0
-        self.start_root_y = 0
+        self.last_width = 0
+        self.last_height = 0
+        self.last_x = 0
+        self.last_y = 0
+        self.last_root_x = 0
+        self.last_root_y = 0
+        self.last_pos_x = 0
+        self.last_pos_y = 0
         self.on_resize_complete = None
+        self.handle_resizing_end = None
 
     def set_on_resize_complete(self, on_resize_complete):
         self.on_resize_complete = on_resize_complete
+
+    def set_handle_resizing_end(self, handle_resizing_end):
+        self.handle_resizing_end = handle_resizing_end
 
     def on_update(self):
         """
@@ -43,8 +54,8 @@ class SelectedCanvas(Canvas):
         :param is_fill: 是否填充
         :return: None
         """
-        width = self.winfo_width()
-        height = self.winfo_height()
+        width = get_pixel_width(self)
+        height = get_pixel_height(self)
         self.coords('side', 6, 6, width - 6, height - 6)
         self.coords('nw', 0, 0, 7, 7)
         self.coords('sw', 0, height - 8, 7, height - 1)
@@ -55,9 +66,12 @@ class SelectedCanvas(Canvas):
         self.coords('se', width - 8, height - 8, width - 1, height - 1)
         self.coords('e', width - 8, (height - 7) / 2, width - 1, (height - 7) / 2 + 7)
 
+        fill_color = ''
         if is_fill:
-            for name in ('nw', 'w', 'sw', 'n', 's', 'ne', 'e', 'se'):
-                self.itemconfig(name, fill='red')
+            fill_color = 'red'
+
+        for name in ('nw', 'w', 'sw', 'n', 's', 'ne', 'e', 'se'):
+            self.itemconfig(name, fill=fill_color)
 
     def hide(self):
         """
@@ -101,14 +115,14 @@ class SelectedCanvas(Canvas):
         :return: None
         """
         self.is_sizing = True
-        self.start_x = event.x
-        self.start_y = event.y
-        self.start_root_x = event.x_root
-        self.start_root_y = event.y_root
-        self.old_width = self.winfo_width()
-        self.old_height = self.winfo_height()
-        self.old_pos_x = int(self.place_info()['x'])
-        self.old_pos_y = int(self.place_info()['y'])
+        self.last_width = self.winfo_width()
+        self.last_height = self.winfo_height()
+        self.last_x = event.x
+        self.last_y = event.y
+        self.last_root_x = event.x_root
+        self.last_root_y = event.y_root
+        self.last_pos_x = int(self.place_info()['x'])
+        self.last_pos_y = int(self.place_info()['y'])
 
     def on_mouse_move(self, tag_name, event):
         """
@@ -120,25 +134,49 @@ class SelectedCanvas(Canvas):
         if not self.is_sizing:
             return
 
+        add_width = add_height = width = height = None
+        add_pos_x = add_pos_y = x = y = None
+
         if 'e' in tag_name:
-            width = max(0, self.old_width + (event.x - self.start_x))
-            self.place_configure(width=width)
+            add_width = event.x - self.last_x
+            self.last_width = width = max(0, self.last_width + add_width)
+            self.last_x = event.x
 
         if 'w' in tag_name:
-            width = max(0, self.old_width + (self.start_root_x - event.x_root))
-            to_x = event.x - self.start_x + int(self.place_info()['x'])
-            self.place_configure(width=width, x=to_x)
+            add_width = add_pos_x = self.last_root_x - event.x_root
+            self.last_width = width = max(0, self.last_width + add_pos_x)
+            self.last_root_x = event.x_root
+            x = self.last_pos_x = self.last_pos_x - add_pos_x
 
         if 's' in tag_name:
-            height = max(0, self.old_height + (event.y - self.start_y))
-            self.place_configure(height=height)
+            add_height = event.y - self.last_y
+            self.last_height = height = max(0, self.last_height + add_height)
+            self.last_y = event.y
 
         if 'n' in tag_name:
-            height = max(0, self.old_height + (self.start_root_y - event.y_root))
-            to_y = event.y - self.start_y + int(self.place_info()['y'])
-            self.place_configure(height=height, y=to_y)
+            add_height = add_pos_y =  self.last_root_y - event.y_root
+            self.last_height = height = max(0, self.last_height + add_pos_y)
+            self.last_root_y = event.y_root
+            y = self.last_pos_y = self.last_pos_y - add_pos_y
 
-        self.after_idle(self.show)
+        self.on_resizing_end(
+            x=x, y=y, width=width, height=height,
+            add_pos_x=add_pos_x, add_pos_y=add_pos_y, add_width=add_width, add_height=add_height
+        )
+
+    def on_resizing_end(self, **args):
+
+        if self.handle_resizing_end is None:
+            configure_data = {}
+            for arg in ("width", "height", "x", "y"):
+                if args[arg] is None:
+                    continue
+                configure_data[arg] = args[arg]
+            self.place_configure(configure_data)
+            self.after_idle(self.show)
+            return
+
+        self.handle_resizing_end(**args)
 
     def on_mouse_release(self, tag_name, event):
         """
