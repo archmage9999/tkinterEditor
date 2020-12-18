@@ -978,13 +978,15 @@ class tkinterEditor(componentMgr):
         pos_y = int(edit_component.component_info["y"])
 
         if keysym == "Up":
-            edit_component.change_pos_y(edit_component.component, pos_y - 1)
+            edit_component.change_pos_y(edit_component.component, pos_y + 7)
         elif keysym == "Down":
-            edit_component.change_pos_y(edit_component.component, pos_y + 1)
+            edit_component.change_pos_y(edit_component.component, pos_y + 9)
         elif keysym == "Left":
-            edit_component.change_pos_x(edit_component.component, pos_x - 1)
+            edit_component.change_pos_x(edit_component.component, pos_x + 7)
         else:
-            edit_component.change_pos_x(edit_component.component, pos_x + 1)
+            edit_component.change_pos_x(edit_component.component, pos_x + 9)
+
+        self.on_edit_component_master_resize_complete(edit_component)
 
     def move_up(self):
         """
